@@ -97,7 +97,7 @@ def tell_check(conn, nick):
 
 
 @hook.event(EventType.message, singlethread=True)
-def tellinput(event, conn, db, nick, notice):
+def tellinput(event, conn, db, nick, notice, message):
     """
     :type event: cloudbot.event.Event
     :type conn: cloudbot.client.Client
@@ -112,7 +112,7 @@ def tellinput(event, conn, db, nick, notice):
         return
 
     if tells:
-        user_from, message, time_sent = tells[0]
+        user_from, msg, time_sent = tells[0]
         reltime = timeformat.time_since(time_sent)
 
         if reltime == 0:
@@ -120,16 +120,16 @@ def tellinput(event, conn, db, nick, notice):
         else:
             reltime_formatted = reltime
 
-        reply = "{} sent you a message {} ago: {}".format(user_from, reltime_formatted, message)
+        reply = "{} sent you a message {} ago: {}".format(user_from, reltime_formatted, msg)
         if len(tells) > 1:
             reply += " (+{} more, {}showtells to view)".format(len(tells) - 1, conn.config["command_prefix"][0])
 
-        read_tell(db, conn.name, nick, message)
-        notice(reply)
+        read_tell(db, conn.name, nick, msg)
+        message(reply)
 
 
 @hook.command(autohelp=False)
-def showtells(nick, notice, db, conn):
+def showtells(nick, notice, message, db, conn):
     """- View all pending tell messages (sent in a notice)."""
 
     tells = get_unread(db, conn.name, nick)
@@ -147,7 +147,7 @@ def showtells(nick, notice, db, conn):
 
 
 @hook.command("tell")
-def tell_cmd(text, nick, db, notice, conn, notice_doc, is_nick_valid):
+def tell_cmd(text, nick, db, message, notice, conn, notice_doc, is_nick_valid):
     """<nick> <message> - Relay <message> to <nick> when <nick> is around."""
     query = text.split(' ', 1)
     if query[0].lower() == "paradox":
@@ -157,20 +157,20 @@ def tell_cmd(text, nick, db, notice, conn, notice_doc, is_nick_valid):
         return
 
     target = query[0]
-    message = query[1].strip()
+    msg = query[1].strip()
     sender = nick
 
     if target.lower() == sender.lower():
-        notice("Have you looked in a mirror lately?")
+        message("Have you looked in a mirror lately?")
         return
 
     if not is_nick_valid(target.lower()) or target.lower() == conn.nick.lower():
-        notice("Invalid nick '{}'.".format(target))
+        message("Invalid nick '{}'.".format(target))
         return
 
     if count_unread(db, conn.name, target.lower()) >= 10:
-        notice("Sorry, {} has too many messages queued already.".format(target))
+        message("Sorry, {} has too many messages queued already.".format(target))
         return
 
-    add_tell(db, conn.name, sender, target.lower(), message)
-    notice("Your message has been saved, and {} will be notified once they are active.".format(target))
+    add_tell(db, conn.name, sender, target.lower(), msg)
+    message("Your message has been saved, and {} will be notified once they are active.".format(target))

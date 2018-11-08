@@ -44,7 +44,7 @@ def get_video_description(video_id):
         total_votes = float(statistics['likeCount']) + float(statistics['dislikeCount'])
     except (LookupError, ValueError):
         total_votes = 0
-
+"""
     if total_votes != 0:
         # format
         likes = pluralize_auto(int(statistics['likeCount']), "like")
@@ -53,7 +53,7 @@ def get_video_description(video_id):
         percent = 100 * float(statistics['likeCount']) / total_votes
         out += ' - {}, {} (\x02{:.1f}\x02%)'.format(likes,
                                                     dislikes, percent)
-
+"""
     if 'viewCount' in statistics:
         views = int(statistics['viewCount'])
         out += ' - \x02{:,}\x02 view{}'.format(views, "s"[views == 1:])

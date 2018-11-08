@@ -54,10 +54,10 @@ url_re = re.compile(
 
 HEADERS = {
     'Accept-Language': 'en-US,en;q=0.5',
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'
+    'User-Agent': "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
 }
 
-MAX_RECV = 1000000
+MAX_RECV = 5000000
 
 
 def get_encoding(soup):
@@ -102,8 +102,15 @@ def print_url_title(message, match):
         return
 
     html = parse_content(content, encoding)
+    meta = html.find("meta", attrs={"name":"description"})
+    if meta:
+        description = meta.get("content", None)
 
     if html.title:
         title = html.title.text
-        out = "Title: \x02{}\x02".format(title.strip())
+        out = "^ \x02{}\x02".format(title.strip())
+        if meta and description:
+            if len(description) > 160:
+                description = description[:161] + "..."
+            out += " - {}".format(description)
         message(out)
