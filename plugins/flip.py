@@ -43,6 +43,8 @@ replacements = {
     '{': '}',
     '\'': ',',
     '_': '‾',
+    '🙂': '🙃',
+    '🔺': '🔻',
 }
 
 # append an inverted form of replacements to itself, so flipping works both ways
